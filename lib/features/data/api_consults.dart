@@ -53,7 +53,6 @@ class MangadexService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('aqui trae los datos de recomendados $data');
         final mangaList = (data['data'] as List)
             .map((json) => Manga.fromJson(json))
             .toList();

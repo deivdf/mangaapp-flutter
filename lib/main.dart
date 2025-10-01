@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
-import 'features/home/presentation/home_page.dart';
+import 'features/navigation/presentation/pages/navigation_page.dart';
 
 void main() {
   runApp(const MangaVerseApp());
@@ -20,7 +20,7 @@ class MangaVerseApp extends StatelessWidget {
       themeMode:
           ThemeMode.system, // apply to themes automatically get from system
 
-      home: const HomePage(),
+      home: const NavigationPage(),
     );
   }
 }

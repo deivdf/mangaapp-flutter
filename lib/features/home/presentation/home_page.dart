@@ -10,7 +10,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentIndex = 0;
+  //int _currentIndex = 0;
   final MangadexService _apiService = MangadexService();
 
   // Estados de carga
@@ -40,7 +40,6 @@ class _HomePageState extends State<HomePage> {
       final mangas = await _apiService.getRecommendedMangas(limit: 10);
       setState(() {
         _recommendedMangas = mangas;
-        print('aqui trae los datos de recomendados en la vista home $mangas');
         _isLoadingRecommended = false;
       });
     } catch (e) {
@@ -68,11 +67,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(context),
-      body: _buildBody(context),
-      bottomNavigationBar: _buildBottomNavigationBar(context),
-    );
+    return Scaffold(appBar: _buildAppBar(context), body: _buildBody(context));
   }
 
   PreferredSizeWidget _buildAppBar(BuildContext context) {
@@ -132,9 +127,6 @@ class _HomePageState extends State<HomePage> {
             color: Theme.of(context).colorScheme.primary,
           ),
         ),
-        onTap: () {
-          // Navegar a pantalla de búsqueda
-        },
       ),
     );
   }
@@ -185,7 +177,6 @@ class _HomePageState extends State<HomePage> {
         itemCount: _recommendedMangas.length,
         itemBuilder: (context, index) {
           final manga = _recommendedMangas[index];
-          print('mosttrando mangas aqui: ${manga}');
           return Padding(
             padding: const EdgeInsets.only(right: 16),
             child: _buildMangaCard(context, manga: manga, width: 160),
@@ -316,29 +307,6 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildBottomNavigationBar(BuildContext context) {
-    return BottomNavigationBar(
-      currentIndex: _currentIndex,
-      onTap: (index) {
-        setState(() {
-          _currentIndex = index;
-        });
-      },
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
-        BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Buscar'),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.bookmark),
-          label: 'Biblioteca',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.settings),
-          label: 'Configuración',
-        ),
-      ],
     );
   }
 }
