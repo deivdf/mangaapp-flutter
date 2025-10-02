@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mangaapp/features/data/api_consults.dart';
 import 'package:mangaapp/features/models/model_manga.dart';
+import 'package:mangaapp/features/shared/widgets/skeleton_widgets.dart';
+import 'package:mangaapp/features/shared/widgets/lightweight_skeleton.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,6 +26,10 @@ class _HomePageState extends State<HomePage> {
   // Mensajes de error
   String? _recommendedError;
   String? _popularError;
+
+  // Flag para usar skeletons ultra-ligeros en caso de performance crítico
+  static const bool useUltraLightSkeletons =
+      false; // Cambiar a true si necesitas máximo performance
 
   @override
   void initState() {
@@ -140,10 +146,9 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildRecommendationsRow(BuildContext context) {
     if (_isLoadingRecommended) {
-      return const SizedBox(
-        height: 280,
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return useUltraLightSkeletons
+          ? const UltraLightHorizontalList(height: 280, itemCount: 5)
+          : const HorizontalMangaListSkeleton(height: 280, itemCount: 5);
     }
 
     if (_recommendedError != null) {
@@ -188,10 +193,9 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildPopularGrid(BuildContext context) {
     if (_isLoadingPopular) {
-      return const SizedBox(
-        height: 400,
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return useUltraLightSkeletons
+          ? const UltraLightPopularGrid(itemCount: 6)
+          : const PopularMangaGridSkeleton(itemCount: 6);
     }
 
     if (_popularError != null) {
@@ -259,14 +263,12 @@ class _HomePageState extends State<HomePage> {
                         },
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(
-                              value: loadingProgress.expectedTotalBytes != null
-                                  ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes!
-                                  : null,
-                            ),
-                          );
+                          return useUltraLightSkeletons
+                              ? const UltraLightImageSkeleton()
+                              : const SimpleSkeleton(
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                );
                         },
                       )
                     : Container(
