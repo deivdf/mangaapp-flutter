@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mangaapp/features/data/api_consults.dart';
+import 'package:mangaapp/features/manga/presentation/pages/MangaDetails_page.dart';
 import 'package:mangaapp/features/models/model_manga.dart';
 import 'package:mangaapp/features/shared/widgets/skeleton_widgets.dart';
 import 'package:mangaapp/features/shared/widgets/lightweight_skeleton.dart';
@@ -232,81 +233,91 @@ class _HomePageState extends State<HomePage> {
 
     return SizedBox(
       width: width,
-      child: Card(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Imagen del manga
-            Expanded(
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(12),
-                ),
-                child: manga.coverFileName != null
-                    ? Image.network(
-                        manga.getCoverUrl(size: 512),
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer,
-                            child: Icon(
-                              Icons.broken_image,
-                              size: 48,
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MangaDetailsPage(manga: manga),
+            ),
+          );
+        },
+        child: Card(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Imagen del manga
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(12),
+                  ),
+                  child: manga.coverFileName != null
+                      ? Image.network(
+                          manga.getCoverUrl(size: 512),
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
                               color: Theme.of(
                                 context,
-                              ).colorScheme.onPrimaryContainer,
-                            ),
-                          );
-                        },
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return useUltraLightSkeletons
-                              ? const UltraLightImageSkeleton()
-                              : const SimpleSkeleton(
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                );
-                        },
-                      )
-                    : Container(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        child: Icon(
-                          Icons.image,
-                          size: 48,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onPrimaryContainer,
+                              ).colorScheme.primaryContainer,
+                              child: Icon(
+                                Icons.broken_image,
+                                size: 48,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
+                              ),
+                            );
+                          },
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return useUltraLightSkeletons
+                                ? const UltraLightImageSkeleton()
+                                : const SimpleSkeleton(
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                  );
+                          },
+                        )
+                      : Container(
+                          color: Theme.of(context).colorScheme.primaryContainer,
+                          child: Icon(
+                            Icons.image,
+                            size: 48,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onPrimaryContainer,
+                          ),
                         ),
-                      ),
+                ),
               ),
-            ),
 
-            // Información del manga
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    manga.title,
-                    style: Theme.of(context).textTheme.titleMedium,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    genres.isEmpty ? 'Sin géneros' : genres,
-                    style: Theme.of(context).textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+              // Información del manga
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      manga.title,
+                      style: Theme.of(context).textTheme.titleMedium,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      genres.isEmpty ? 'Sin géneros' : genres,
+                      style: Theme.of(context).textTheme.bodySmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

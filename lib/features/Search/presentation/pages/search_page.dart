@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mangaapp/features/data/api_consults.dart';
+import 'package:mangaapp/features/manga/presentation/pages/MangaDetails_page.dart';
 import 'package:mangaapp/features/models/model_manga.dart';
 import 'package:mangaapp/features/models/model_mangaTag.dart';
 import 'package:mangaapp/features/shared/widgets/skeleton_widgets.dart';
@@ -32,37 +33,26 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _loadTags() async {
-    print('🏷️ [TAGS] Iniciando carga de tags...');
     setState(() {
       _isTagLoading = true;
       _tagsError = null;
     });
     try {
-      print('🏷️ [TAGS] Llamando a API...');
       final tags = await _apiService.getAlltags();
-      print('🏷️ [TAGS] API respondió con ${tags.length} tags');
 
       final filteredTags = tags
           .where((tag) => tag.group == 'genre' || tag.group == 'theme')
           .toList();
-      print('🏷️ [TAGS] Filtrados: ${filteredTags.length} tags (genre/theme)');
 
       setState(() {
         allTags = filteredTags;
         _isTagLoading = false;
       });
-      print(
-        '🏷️ [TAGS] Estado actualizado - _isTagLoading: $_isTagLoading, allTags.length: ${allTags.length}',
-      );
     } catch (e) {
-      print('🏷️ [TAGS] Error: $e');
       setState(() {
         _isTagLoading = false;
         _tagsError = 'Error loading tags: $e';
       });
-      print(
-        '🏷️ [TAGS] Estado de error actualizado - _isTagLoading: $_isTagLoading, _tagsError: $_tagsError',
-      );
     }
   }
 
@@ -95,12 +85,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Widget _buildGenreChips(BuildContext context) {
-    print(
-      '🏷️ [UI] Renderizando chips - _isTagLoading: $_isTagLoading, _tagsError: $_tagsError, allTags.length: ${allTags.length}',
-    );
-
     if (_isTagLoading) {
-      print('🏷️ [UI] Mostrando skeleton (cargando)');
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: useUltraLightSkeletons
@@ -109,7 +94,6 @@ class _SearchPageState extends State<SearchPage> {
       );
     }
     if (_tagsError != null) {
-      print('🏷️ [UI] Mostrando error: $_tagsError');
       return Padding(
         padding: const EdgeInsets.all(16),
         child: Center(
@@ -127,20 +111,20 @@ class _SearchPageState extends State<SearchPage> {
       );
     }
     if (allTags.isEmpty) {
-      print('🏷️ [UI] allTags está vacío, mostrando mensaje');
       return Padding(
         padding: const EdgeInsets.all(16),
         child: Center(
           child: Text(
             'No hay géneros disponibles',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              color: Theme.of(
+                context,
+              ).colorScheme.inversePrimary.withOpacity(0.6),
             ),
           ),
         ),
       );
     }
-    print('🏷️ [UI] Mostrando ${allTags.length} chips de tags');
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -152,6 +136,13 @@ class _SearchPageState extends State<SearchPage> {
             child: FilterChip(
               label: Text(tag.name),
               selected: selected,
+              selectedColor: Theme.of(
+                context,
+              ).colorScheme.primary.withOpacity(0.8),
+              checkmarkColor: Theme.of(context).colorScheme.onPrimary,
+              labelStyle: selected
+                  ? TextStyle(color: Theme.of(context).colorScheme.onPrimary)
+                  : null,
               onSelected: (isSelected) {
                 setState(() {
                   if (isSelected) {
@@ -171,37 +162,47 @@ class _SearchPageState extends State<SearchPage> {
 
   Widget _buildMangaTile(BuildContext context, Manga manga) {
     return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-              child: Image.network(
-                manga.getCoverUrl(), // Usar la URL real de la portada
-                fit: BoxFit.cover,
-                width: double.infinity,
-                errorBuilder: (context, error, stackTrace) =>
-                    Icon(Icons.image, size: 48),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MangaDetailsPage(manga: manga),
+            ),
+          );
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: ClipRRect(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                child: Image.network(
+                  manga.getCoverUrl(),
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  errorBuilder: (context, error, stackTrace) =>
+                      Icon(Icons.image, size: 48),
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  manga.title,
-                  style: Theme.of(context).textTheme.titleMedium,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                // Puedes mostrar más datos del objeto manga aquí
-              ],
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    manga.title,
+                    style: Theme.of(context).textTheme.titleMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  // Puedes mostrar más datos del objeto manga aquí
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

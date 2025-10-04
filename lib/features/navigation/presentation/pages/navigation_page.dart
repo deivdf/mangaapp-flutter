@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mangaapp/features/home/presentation/home_page.dart';
+import 'package:mangaapp/features/home/presentation/pages/home_page.dart';
 import 'package:mangaapp/features/Search/presentation/pages/search_page.dart';
 import 'package:mangaapp/features/library/presentation/pages/library_page.dart'; // Placeholder
 import 'package:mangaapp/features/settings/presentation/pages/settings_page.dart'; // Placeholder

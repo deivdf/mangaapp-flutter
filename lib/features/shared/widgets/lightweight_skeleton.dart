@@ -258,3 +258,65 @@ class UltraLightImageSkeleton extends StatelessWidget {
     );
   }
 }
+
+/// Skeleton minimalista para carga de capítulos
+class UltraLightChapterLoading extends StatelessWidget {
+  const UltraLightChapterLoading({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).brightness == Brightness.dark
+        ? Colors.grey[800]!
+        : Colors.grey[300]!;
+
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        children: [
+          // Circular indicator
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Texto
+          Container(
+            width: 180,
+            height: 20,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          // Progreso
+          Container(
+            width: 100,
+            height: 16,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Barra
+          Container(
+            width: double.infinity,
+            height: 4,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

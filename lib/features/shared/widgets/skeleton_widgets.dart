@@ -6,6 +6,7 @@ class SkeletonContainer extends StatefulWidget {
   final double? height;
   final BorderRadius? borderRadius;
   final EdgeInsets? margin;
+  final Widget? child;
 
   const SkeletonContainer({
     super.key,
@@ -13,6 +14,7 @@ class SkeletonContainer extends StatefulWidget {
     this.height,
     this.borderRadius,
     this.margin,
+    this.child,
   });
 
   @override
@@ -299,6 +301,119 @@ class SimpleTagChipsSkeleton extends StatelessWidget {
             ),
           );
         }),
+      ),
+    );
+  }
+}
+
+/// Skeleton para el estado de carga de capítulos con progreso
+class ChapterLoadingSkeleton extends StatelessWidget {
+  final bool showProgress;
+  final int itemCount;
+
+  const ChapterLoadingSkeleton({
+    super.key,
+    this.showProgress = true,
+    this.itemCount = 3,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        children: [
+          // Circular progress skeleton
+          SkeletonContainer(
+            width: 40,
+            height: 40,
+            borderRadius: BorderRadius.circular(20),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Texto "Cargando capítulos"
+          SkeletonContainer(
+            width: 180,
+            height: 20,
+            borderRadius: BorderRadius.circular(4),
+          ),
+
+          if (showProgress) ...[
+            const SizedBox(height: 12),
+
+            // Texto de progreso "X de Y"
+            SkeletonContainer(
+              width: 100,
+              height: 16,
+              borderRadius: BorderRadius.circular(4),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Barra de progreso
+            SkeletonContainer(
+              width: double.infinity,
+              height: 4,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ],
+
+          const SizedBox(height: 32),
+
+          // Preview de cards de capítulos
+          ...List.generate(
+            itemCount,
+            (index) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildChapterCardSkeleton(context),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildChapterCardSkeleton(BuildContext context) {
+    return SkeletonContainer(
+      width: double.infinity,
+      height: 80,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            // Número del capítulo
+            SkeletonContainer(
+              width: 50,
+              height: 50,
+              borderRadius: BorderRadius.circular(8),
+            ),
+
+            const SizedBox(width: 12),
+
+            // Información
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SkeletonContainer(
+                    width: double.infinity,
+                    height: 16,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  const SizedBox(height: 8),
+                  SkeletonContainer(
+                    width: 150,
+                    height: 12,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
