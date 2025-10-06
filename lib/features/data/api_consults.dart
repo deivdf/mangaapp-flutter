@@ -1,6 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'package:mangaapp/features/models/cover_art_model.dart';
 import 'package:mangaapp/features/models/model_chapeter.dart';
+import 'package:mangaapp/features/models/model_chapeterpage.dart';
 import 'dart:convert';
 import 'package:mangaapp/features/models/model_manga.dart';
 import 'package:mangaapp/features/models/model_mangaTag.dart';
@@ -12,10 +13,10 @@ class MangadexService {
     final params = {
       'limit': limit.toString(),
       'offset': offset.toString(),
-      'order[rating]': 'desc', // Ordenar por rating descendente
-      'order[followedCount]': 'desc', // Ordenar por follows
-      'contentRating[]': ['safe', 'suggestive'], // Filtrar contenido
-      'includes[]': ['cover_art', 'author', 'artist'], // Incluir relaciones
+      'order[rating]': 'desc', // Order for rating descendent
+      'order[followedCount]': 'desc', // Order for follows
+      'contentRating[]': ['safe', 'suggestive'], // Filter content
+      'includes[]': ['cover_art', 'author', 'artist'], // Include relationships
     };
 
     final uri = Uri.parse('$baseUrl/manga').replace(queryParameters: params);
@@ -107,12 +108,12 @@ class MangadexService {
         'order[relevance]': 'desc',
       };
 
-      // Agregar título si existe
+      // add title if exists
       if (title != null && title.isNotEmpty) {
         queryParams['title'] = title;
       }
 
-      // Agregar tags si existen
+      // add tags if exists
       if (includedTags != null && includedTags.isNotEmpty) {
         queryParams['includedTags[]'] = includedTags;
       }
@@ -133,7 +134,7 @@ class MangadexService {
             final manga = Manga.fromJson(mangaJson);
             mangaList.add(manga);
           } catch (e) {
-            print('❌ Error parseando manga: $e');
+            throw Exception('Error parseando manga: $e');
           }
         }
 
@@ -192,23 +193,21 @@ class MangadexService {
     }
   }
 
-  // Obtener TODOS los capítulos con paginación automática
+  // get TODOS the chapters with pagination auto
   Future<List<Chapter>> getAllMangaChapters(
     String mangaId, {
     List<String>? languages,
     String orderVolume = 'asc',
     String orderChapter = 'asc',
-    Function(int current, int total)? onProgress, // Callback para progreso
+    Function(int current, int total)? onProgress, // Callback for progress
   }) async {
     final allChapters = <Chapter>[];
     int offset = 0;
-    const int limit = 100; // Tamaño de página (máximo permitido por MangaDex)
+    const int limit = 100; //size of page permit for the mangadexapi
     int totalChapters = 0;
 
     try {
       do {
-        print('📥 Cargando capítulos: offset=$offset');
-
         final queryParams = <String, dynamic>{
           'limit': limit.toString(),
           'offset': offset.toString(),
@@ -229,46 +228,60 @@ class MangadexService {
           final data = json.decode(response.body);
           final dataList = data['data'] as List? ?? [];
 
-          // Obtener total de capítulos disponibles
           totalChapters = data['total'] ?? 0;
 
-          // Parsear capítulos de esta página
+          //parser chapters
           for (var chapterJson in dataList) {
             try {
               final chapter = Chapter.fromJson(chapterJson);
               allChapters.add(chapter);
             } catch (e) {
-              print('❌ Error parseando capítulo: $e');
+              throw Exception('Error parseando capítulo: $e');
             }
           }
 
-          // Reportar progreso
+          // Repor progres
           onProgress?.call(allChapters.length, totalChapters);
 
-          // Si obtuvimos menos capítulos que el límite, ya no hay más
+          // if get less chapters than the limit, and not more
           if (dataList.length < limit) {
             break;
           }
 
-          // Incrementar offset para siguiente página
+          // Increment offset for next page
           offset += limit;
 
-          // Pequeña pausa para no saturar la API (respeto al rate limiting)
+          // Sleep for a short duration to avoid overwhelming the API (respecting rate limiting)
           await Future.delayed(const Duration(milliseconds: 250));
         } else {
           throw Exception('Error ${response.statusCode}');
         }
       } while (allChapters.length < totalChapters);
 
-      print('✅ Total de capítulos cargados: ${allChapters.length}');
       return allChapters;
     } catch (e) {
-      print('❌ Error obteniendo capítulos: $e');
-      // Si hubo error pero ya tenemos algunos capítulos, retornarlos
       if (allChapters.isNotEmpty) {
         return allChapters;
       }
       throw Exception('Error obteniendo capítulos: $e');
+    }
+  }
+
+  Future<Chapterpage> getChapterPage(String chapterId) async {
+    try {
+      final uri = Uri.parse('$baseUrl/at-home/server/$chapterId');
+      print('🔍 Obteniendo páginas del capítulo: $uri');
+
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('✅ Páginas obtenidas: ${data['chapter']['data'].length}');
+        return Chapterpage.fromJson(data);
+      } else {
+        throw Exception('Error ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error obteniendo páginas del capítulo: $e');
     }
   }
 }

@@ -4,6 +4,7 @@ import 'package:mangaapp/features/manga/presentation/widgets/manga_cover_header.
 import 'package:mangaapp/features/manga/presentation/widgets/manga_description_section.dart';
 import 'package:mangaapp/features/models/model_manga.dart';
 import 'package:mangaapp/features/models/model_chapeter.dart';
+import 'package:mangaapp/features/reader/presentation/pages/reader_page.dart';
 
 class MangaDetailsPage extends StatelessWidget {
   final Manga manga;
@@ -11,12 +12,11 @@ class MangaDetailsPage extends StatelessWidget {
   const MangaDetailsPage({super.key, required this.manga});
 
   void _onChapterTap(BuildContext context, Chapter chapter) {
-    // TODO: Navegar al lector de capítulos
-    print('Abrir capítulo: ${chapter.id}');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Abriendo capítulo ${chapter.chapter}'),
-        duration: const Duration(seconds: 1),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            ChapterReaderPage(chapter: chapter, mangaTitle: manga.title),
       ),
     );
   }
@@ -53,12 +53,10 @@ class MangaDetailsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Portada
             MangaCoverHeader(imageUrl: manga.getCoverUrl()),
 
             const SizedBox(height: 16),
 
-            // Descripción
             MangaDescriptionSection(
               title: manga.title,
               description: manga.description ?? 'Sin descripción disponible',
@@ -69,7 +67,6 @@ class MangaDetailsPage extends StatelessWidget {
 
             const Divider(thickness: 1),
 
-            // Sección de capítulos (Widget independiente)
             ChaptersSection(
               mangaId: manga.id,
               onChapterTap: (chapter) => _onChapterTap(context, chapter),
