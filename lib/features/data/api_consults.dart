@@ -1,12 +1,13 @@
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:mangaapp/features/models/cover_art_model.dart';
 import 'package:mangaapp/features/models/model_chapeter.dart';
 import 'package:mangaapp/features/models/model_chapter_image.dart';
-import 'dart:convert';
 import 'package:mangaapp/features/models/model_manga.dart';
 import 'package:mangaapp/features/models/model_mangaTag.dart';
+import 'package:mangaapp/network/dio_client.dart';
 
 class MangadexService {
+  final Dio _dio = DioClient.dio;
   static const String baseUrl = 'https://api.mangadex.org';
 
   Future<List<Manga>> getPopularMangas({int limit = 10, int offset = 0}) async {
@@ -22,10 +23,10 @@ class MangadexService {
     final uri = Uri.parse('$baseUrl/manga').replace(queryParameters: params);
 
     try {
-      final response = await http.get(uri);
+      final response = await _dio.get('$uri');
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 304) {
+        final data = response.data;
 
         final mangaList = (data['data'] as List)
             .map((json) => Manga.fromJson(json))
@@ -53,10 +54,9 @@ class MangadexService {
         },
       );
 
-      final response = await http.get(uri);
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      final response = await _dio.get('$uri');
+      if (response.statusCode == 200 || response.statusCode == 304) {
+        final data = response.data;
         final mangaList = (data['data'] as List)
             .map((json) => Manga.fromJson(json))
             .toList();
@@ -74,13 +74,13 @@ class MangadexService {
     try {
       final uri = Uri.parse('$baseUrl/manga/tag');
 
-      final response = await http.get(
-        uri,
-        headers: {'Accept': 'application/json'},
+      final response = await _dio.get(
+        '$uri',
+        options: Options(headers: {'Accept': 'application/json'}),
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 304) {
+        final data = response.data;
         final tagList = (data['data'] as List)
             .map((json) => MangaTag.fromJson(json))
             .toList();
@@ -122,10 +122,10 @@ class MangadexService {
         '$baseUrl/manga',
       ).replace(queryParameters: queryParams);
 
-      final response = await http.get(uri);
+      final response = await _dio.get('$uri');
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 304) {
+        final data = response.data;
         final mangaList = <Manga>[];
         final dataList = data['data'] as List? ?? [];
 
@@ -153,10 +153,10 @@ class MangadexService {
       '$baseUrl/manga/$mangaId',
     ).replace(queryParameters: {'includes[]': 'cover_art'});
 
-    final response = await http.get(uri);
+    final response = await _dio.get('$uri');
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+    if (response.statusCode == 200 || response.statusCode == 304) {
+      final data = response.data;
       return Manga.fromJson(data['data']);
     }
 
@@ -176,10 +176,10 @@ class MangadexService {
           'order[volume]': 'asc',
         },
       );
-      final response = await http.get(uri);
+      final response = await _dio.get('$uri');
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 304) {
+        final data = response.data;
         final dataList = (data['data'] as List)
             .map((json) => (CoverArtModel.fromJson(json)))
             .toList();
@@ -222,10 +222,10 @@ class MangadexService {
           '$baseUrl/manga/$mangaId/feed',
         ).replace(queryParameters: queryParams);
 
-        final response = await http.get(uri);
+        final response = await _dio.get('$uri');
 
-        if (response.statusCode == 200) {
-          final data = json.decode(response.body);
+        if (response.statusCode == 200 || response.statusCode == 304) {
+          final data = response.data;
           final dataList = data['data'] as List? ?? [];
 
           totalChapters = data['total'] ?? 0;
@@ -273,15 +273,12 @@ class MangadexService {
         'https://api.mangadex.org/at-home/server/$chapterId',
       );
 
-      print('🖼️ Obteniendo imágenes del capítulo: $chapterId');
+      final response = await _dio.get('$uri');
 
-      final response = await http.get(uri);
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      if (response.statusCode == 200 || response.statusCode == 304) {
+        final data = response.data;
         final chapterImages = ChapterImages.fromJson(data);
 
-        print('✅ Imágenes obtenidas: ${chapterImages.totalPages} páginas');
         return chapterImages;
       } else if (response.statusCode == 404) {
         throw Exception('Capítulo no encontrado');
@@ -289,7 +286,6 @@ class MangadexService {
         throw Exception('Error ${response.statusCode}');
       }
     } catch (e) {
-      print('❌ Error obteniendo imágenes: $e');
       throw Exception('Error obteniendo imágenes del capítulo: $e');
     }
   }
