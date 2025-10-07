@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'package:mangaapp/features/models/cover_art_model.dart';
 import 'package:mangaapp/features/models/model_chapeter.dart';
-import 'package:mangaapp/features/models/model_chapeterpage.dart';
+import 'package:mangaapp/features/models/model_chapter_image.dart';
 import 'dart:convert';
 import 'package:mangaapp/features/models/model_manga.dart';
 import 'package:mangaapp/features/models/model_mangaTag.dart';
@@ -267,21 +267,30 @@ class MangadexService {
     }
   }
 
-  Future<Chapterpage> getChapterPage(String chapterId) async {
+  Future<ChapterImages> getChapterImages(String chapterId) async {
     try {
-      final uri = Uri.parse('$baseUrl/at-home/server/$chapterId');
-      print('🔍 Obteniendo páginas del capítulo: $uri');
+      final uri = Uri.parse(
+        'https://api.mangadex.org/at-home/server/$chapterId',
+      );
+
+      print('🖼️ Obteniendo imágenes del capítulo: $chapterId');
 
       final response = await http.get(uri);
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('✅ Páginas obtenidas: ${data['chapter']['data'].length}');
-        return Chapterpage.fromJson(data);
+        final chapterImages = ChapterImages.fromJson(data);
+
+        print('✅ Imágenes obtenidas: ${chapterImages.totalPages} páginas');
+        return chapterImages;
+      } else if (response.statusCode == 404) {
+        throw Exception('Capítulo no encontrado');
       } else {
         throw Exception('Error ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Error obteniendo páginas del capítulo: $e');
+      print('❌ Error obteniendo imágenes: $e');
+      throw Exception('Error obteniendo imágenes del capítulo: $e');
     }
   }
 }

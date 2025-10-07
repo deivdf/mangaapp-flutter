@@ -16,7 +16,7 @@ class MangaDetailsPage extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            ChapterReaderPage(chapter: chapter, mangaTitle: manga.title),
+            ReaderPage(chapter: chapter, mangaTitle: manga.title),
       ),
     );
   }
