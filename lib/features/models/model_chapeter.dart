@@ -6,7 +6,7 @@ class Chapter {
   final String translatedLanguage;
   final DateTime? publishAt;
   final int pages;
-  final String? scanlationGroup; // Agregar esto
+  final String? scanlationGroup;
 
   Chapter({
     required this.id,

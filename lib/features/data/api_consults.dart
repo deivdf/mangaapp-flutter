@@ -42,11 +42,15 @@ class MangadexService {
   }
 
   // Get recommended mangas (updated recently)
-  Future<List<Manga>> getRecommendedMangas({int limit = 10}) async {
+  Future<List<Manga>> getRecommendedMangas({
+    int limit = 10,
+    int offset = 0,
+  }) async {
     try {
       final uri = Uri.parse('$baseUrl/manga').replace(
         queryParameters: {
           'limit': limit.toString(),
+          'offset': offset.toString(),
           'order[updatedAt]': 'desc',
           'contentRating[]': ['safe', 'suggestive'],
           'includes[]': 'cover_art',

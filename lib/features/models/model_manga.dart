@@ -4,6 +4,7 @@ class Manga {
   final String? description;
   final List<String> tags;
   final String? coverFileName;
+  final int? total;
 
   Manga({
     required this.id,
@@ -11,6 +12,7 @@ class Manga {
     this.description,
     required this.tags,
     this.coverFileName,
+    this.total,
   });
 
   factory Manga.fromJson(Map<String, dynamic> json) {
@@ -55,6 +57,7 @@ class Manga {
       description: description,
       tags: tags,
       coverFileName: coverFileName,
+      total: attributes['total'] as int?,
     );
   }
 
